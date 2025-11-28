@@ -21,7 +21,7 @@ services:
     container_name: symfony_nginx
     image: nginx:alpine
     ports:
-      - "8080:80"
+      - "9080:80"
     volumes:
       - ./app:/var/www/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
