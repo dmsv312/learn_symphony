@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: symfony_app
+    build:
+      context: ./docker/php
+    working_dir: /var/www/app
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
+      DATABASE_URL: mysql://symfony:symfony@mysql:3306/symfony?charset=utf8mb4
+    volumes:
+      - ./app:/var/www/app
+    depends_on:
+      - mysql
+    networks:
+      - backend
+
+  nginx:
+    container_name: symfony_nginx
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app:/var/www/app
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - backend
+
+  mysql:
+    container_name: symfony_mysql
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+
+  redis:
+    container_name: symfony_redis
+    image: redis:alpine
+    networks:
+      - backend
+
+  memcached:
+    container_name: symfony_memcached
+    image: memcached:alpine
+    networks:
+      - backend
+
+volumes:
+  mysql_data:
+
+networks:
+  backend:
