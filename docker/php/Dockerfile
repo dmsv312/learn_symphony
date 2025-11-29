@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -23,6 +23,19 @@ RUN apt-get update \
 RUN curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php \
     && php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && rm /tmp/composer-setup.php
+
+RUN curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+RUN echo "zend_extension=xdebug"                          >  /usr/local/etc/php/conf.d/xdebug.ini \
+ && echo "xdebug.mode=debug"                             >> /usr/local/etc/php/conf.d/xdebug.ini \
+ && echo "xdebug.start_with_request=yes"                 >> /usr/local/etc/php/conf.d/xdebug.ini \
+ && echo "xdebug.client_host=host.docker.internal"       >> /usr/local/etc/php/conf.d/xdebug.ini \
+ && echo "xdebug.client_port=9003"                       >> /usr/local/etc/php/conf.d/xdebug.ini \
+ && echo "xdebug.log_level=0"                            >> /usr/local/etc/php/conf.d/xdebug.ini
 
 WORKDIR /var/www/app
 
